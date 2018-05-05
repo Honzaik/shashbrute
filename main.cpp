@@ -7,18 +7,26 @@
 #include "cryptopp/sha.h"
 
 
+
+
 using namespace std;
 using namespace std::chrono;
 
 int main(int argc, char* argv[]) {
-    unsigned int DELKA = 10;
-    if(argc == 2){
+    int DELKA = 10;
+    string prefix = string("JanOupicky");
+    if(argc >= 2){
         DELKA = atoi(argv[1]);
     }
+    if(argc >= 3){
+        prefix = string(argv[2]);
+    }
+
+    cout << "length of collision " << DELKA << " with prefix " << prefix << endl;
+
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    unordered_map<long long, unsigned long> seznam;
+
     unsigned long counter = 0;
-    string prefix = string("JanOupicky");
     string myString = string(prefix + to_string(counter));
     unsigned char digest[CryptoPP::SHA256::DIGESTSIZE];
     CryptoPP::SHA256 sha;
@@ -31,27 +39,46 @@ int main(int argc, char* argv[]) {
     encoder.Put( digest, sizeof(digest) );
     encoder.MessageEnd();
 
-    long long temp = strtoll(output.substr(0,DELKA).c_str(), NULL, 16);
-
-
-    while(seznam.count(temp) == 0){
-        pair<long long, unsigned long> par (temp, counter);
-        seznam.insert(par);
-        counter++;
-        output.clear();
-        myString = string(prefix + to_string(counter));
-        sha.CalculateDigest(digest, (const unsigned char*)myString.c_str(), myString.length());
-        encoder.Put( digest, sizeof(digest) );
-        encoder.MessageEnd();
-        temp = strtoll(output.substr(0,DELKA).c_str(), NULL, 16);
-        if(counter % 1000000 == 0){
-            cout << counter << endl;
+    if(DELKA < 16) { //use long long
+        cout << "using long long" << endl;
+        unordered_map<long long, unsigned long> seznam;
+        long long temp = strtoll(output.substr(0, DELKA).c_str(), NULL, 16);
+        while(seznam.count(temp) == 0){
+            pair<long long, unsigned long> par (temp, counter);
+            seznam.insert(par);
+            counter++;
+            output.clear();
+            myString = string(prefix + to_string(counter));
+            sha.CalculateDigest(digest, (const unsigned char*)myString.c_str(), myString.length());
+            encoder.Put( digest, sizeof(digest) );
+            encoder.MessageEnd();
+            temp = strtoll(output.substr(0,DELKA).c_str(), NULL, 16);
+            if(counter % 1000000 == 0){
+                cout << counter << endl;
+            }
         }
+        cout << counter << " " << seznam[temp] << "; map size: " << seznam.size() << endl;
+        seznam.clear();
+    }else{ //long long too small use string
+        cout << "using string" << endl;
+        unordered_map<string, unsigned long> seznam;
+        while(seznam.count(output.substr(0,DELKA)) == 0){
+            pair<string, unsigned long> par (output.substr(0,DELKA), counter);
+            seznam.insert(par);
+            counter++;
+            output.clear();
+            myString = string(prefix + to_string(counter));
+            sha.CalculateDigest(digest, (const unsigned char*)myString.c_str(), myString.length());
+            encoder.Put( digest, sizeof(digest) );
+            encoder.MessageEnd();
+            if(counter % 1000000 == 0){
+                cout << counter << endl;
+            }
+        }
+        cout << counter << " " << seznam[output.substr(0,DELKA)] << "; map size: " << seznam.size() << endl;
+        seznam.clear();
     }
 
-    cout << counter << " " << seznam[temp] << endl;
-
-    seznam.clear();
 
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
