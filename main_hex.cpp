@@ -1,6 +1,5 @@
 #include <iostream>
 #include <unordered_map>
-#include <cstdlib>
 #include <chrono>
 #include "cryptopp/cryptlib.h"
 #include "cryptopp/hex.h"
@@ -16,7 +15,7 @@ int main(int argc, char* argv[]) {
         DELKA = atoi(argv[1]);
     }
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    unordered_map<long long, unsigned long> seznam;
+    unordered_map<string, unsigned long> seznam;
     unsigned long counter = 0;
     string prefix = string("JanOupicky");
     string myString = string(prefix + to_string(counter));
@@ -31,11 +30,8 @@ int main(int argc, char* argv[]) {
     encoder.Put( digest, sizeof(digest) );
     encoder.MessageEnd();
 
-    long long temp = strtoll(output.substr(0,DELKA).c_str(), NULL, 16);
-
-
-    while(seznam.count(temp) == 0){
-        pair<long long, unsigned long> par (temp, counter);
+    while(seznam.count(output.substr(0,DELKA)) == 0){
+        pair<string, unsigned long> par (output.substr(0,DELKA), counter);
         seznam.insert(par);
         counter++;
         output.clear();
@@ -43,13 +39,14 @@ int main(int argc, char* argv[]) {
         sha.CalculateDigest(digest, (const unsigned char*)myString.c_str(), myString.length());
         encoder.Put( digest, sizeof(digest) );
         encoder.MessageEnd();
-        temp = strtoll(output.substr(0,DELKA).c_str(), NULL, 16);
         if(counter % 1000000 == 0){
             cout << counter << endl;
         }
     }
 
-    cout << counter << " " << seznam[temp] << endl;
+    cout << DELKA << endl;
+
+    cout << counter << " " << seznam[output.substr(0,DELKA)] << endl;
 
     seznam.clear();
 

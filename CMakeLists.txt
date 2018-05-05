@@ -4,6 +4,7 @@ project(hashbrute)
 set(CMAKE_CXX_STANDARD 11)
 
 add_executable(hashbrute main.cpp)
+#add_executable(hashbrute main_hex.cpp)
 
 include_directories("${CMAKE_SOURCE_DIR}/cryptopp")
 target_link_libraries(hashbrute ${CMAKE_SOURCE_DIR}/libcryptopp.a)
