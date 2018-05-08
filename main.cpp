@@ -25,8 +25,11 @@ int main(int argc, char* argv[]) {
     cout << "length of collision " << DELKA << " with prefix " << prefix << endl;
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-
     unsigned long counter = 0;
+    if(DELKA < 17){
+        unsigned int counter = 0;
+    }
+    
     string myString = string(prefix + to_string(counter));
     unsigned char digest[CryptoPP::SHA256::DIGESTSIZE];
     CryptoPP::SHA256 sha;
@@ -39,12 +42,12 @@ int main(int argc, char* argv[]) {
     encoder.Put( digest, sizeof(digest) );
     encoder.MessageEnd();
 
-    if(DELKA < 16) { //use long long
+    if(DELKA < 17) { //use long long
         cout << "using long long" << endl;
-        unordered_map<long long, unsigned long> seznam;
-        long long temp = strtoll(output.substr(0, DELKA).c_str(), NULL, 16);
+        unordered_map<unsigned long long, unsigned int> seznam;
+        unsigned long long temp = strtoll(output.substr(0, DELKA).c_str(), NULL, 16);
         while(seznam.count(temp) == 0){
-            pair<long long, unsigned long> par (temp, counter);
+            pair<unsigned long long, unsigned int> par (temp, counter);
             seznam.insert(par);
             counter++;
             output.clear();
