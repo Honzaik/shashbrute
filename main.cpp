@@ -6,9 +6,6 @@
 #include "cryptopp/hex.h"
 #include "cryptopp/sha.h"
 
-
-
-
 using namespace std;
 using namespace std::chrono;
 
